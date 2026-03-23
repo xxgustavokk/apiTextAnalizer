@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Analyzer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        p.subtitle {
+            color: #888;
+            margin-bottom: 32px;
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 32px;
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 24px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            padding: 12px;
+            resize: vertical;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        textarea:focus { border-color: #555; }
+
+        button {
+            margin-top: 16px;
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #333; cursor: not-allowed; }
+
+        .result-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 32px;
+            width: 100%;
+            max-width: 700px;
+            display: none;
+            white-space: pre-wrap;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .result-card h2 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .loading { color: #555; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <h1>Text Analyzer</h1>
+    <p class="subtitle">Powered by Gemini AI</p>
+
+    <div class="card">
+        <textarea id="inputText" placeholder="Paste any text here to analyze..."></textarea>
+        <button id="analyzeBtn" onclick="analyze()">Analyze</button>
+    </div>
+
+    <div class="result-card" id="resultCard">
+        <h2>Analysis</h2>
+        <div id="resultText"></div>
+    </div>
+
+    <script>
+        async function analyze() {
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) return;
+
+            const btn = document.getElementById('analyzeBtn');
+            const resultCard = document.getElementById('resultCard');
+            const resultText = document.getElementById('resultText');
+
+            btn.disabled = true;
+            btn.textContent = 'Analyzing...';
+            resultCard.style.display = 'block';
+            resultText.innerHTML = '<span class="loading">Analyzing your text...</span>';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                const data = await response.json();
+                resultText.textContent = data.analysis;
+            } catch (err) {
+                resultText.textContent = 'Something went wrong. Try again.';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Analyze';
+            }
+        }
+    </script>
+
+</body>
+</html>
