@@ -6,6 +6,8 @@ from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from fastapi.templating import Jinja2Templates
+from fastapi.requests import Request
 import os
 
 #carrega as variáveis de ambiente do arquivo .env
@@ -32,6 +34,13 @@ Base.metadata.create_all(bind=engine)
 
 #cria a aplicação e define como fastapi para criar a API
 app = FastAPI()
+
+templates = Jinja2Templates(directory="templates")
+
+#define a rota para a interface web, onde renderiza o template index.html localizado na pasta templates
+@app.get("/ui")
+def ui(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 #define o formato da entrada de dados para que seja validada automaticamente pelo FastAPI
 class TextInput(BaseModel):
